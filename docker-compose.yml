@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  todo_app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - .env
+    # Run a command against the development stage of the image
+    command: npm run start:dev
+    ports:
+      - "5001:5001"
+    depends_on:
+      - postgres_db
+      
+  mongo_db:
+    image: postgres:15-alpine
+    container_name: db_postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+
+volumes:
