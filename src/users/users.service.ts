@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { CreateUserDto } from './dto/create-user.dto';
+import { SignupDto } from './dto/auth.dto';
 import { User } from './models/user.model';
 import * as bcrypt from 'bcrypt'
 
@@ -11,7 +11,7 @@ export class UsersService {
     private readonly userModel: typeof User,
   ) { }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: SignupDto): Promise<User> {
     const salt = await bcrypt.genSalt()
     const hashedPaswword = await bcrypt.hash(createUserDto.password, salt)
 
@@ -24,14 +24,14 @@ export class UsersService {
   }
 
 
-  
+
 
   async findAll(): Promise<User[]> {
     return this.userModel.findAll();
   }
 
   findOne(id: string): Promise<User> {
-    return this.userModel.findOne({where: {id} })
+    return this.userModel.findOne({ where: { id } })
   }
 
 
@@ -40,8 +40,8 @@ export class UsersService {
   findOneUserByPhone(phone: string): Promise<User> {
 
     try {
-      return this.userModel.findOne<User | undefined>({ where: { phone:phone } })
-    
+      return this.userModel.findOne<User | undefined>({ where: { phone: phone } })
+
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
     }

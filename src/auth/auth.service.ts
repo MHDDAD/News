@@ -2,10 +2,23 @@
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { CreateUserDto } from './../users/dto/create-user.dto';
+import { SignupDto } from '../users/dto/auth.dto';
 import { User } from './../users/models/user.model';
-import * as bcrypt from 'bcrypt'
-import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken'
+
+
+interface SignupParams {
+  phone: string,
+  password: string,
+  firstName: string,
+  lastName: string
+}
+
+interface SignInParams {
+  phone: string,
+  password: string
+}
 
 
 @Injectable()
@@ -14,51 +27,50 @@ export class AuthService {
     @InjectModel(User)
     private readonly userModel: typeof User,
 
-    ) { }
+  ) { }
 
 
 
-///SIGN UP
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    
-      const salt = await bcrypt.genSalt()
-      const hashedPaswword = await bcrypt.hash(createUserDto.password, salt)
-try {
-  const user = await this.userModel.create({
-    firstName: createUserDto.firstName,
-    lastName: createUserDto.lastName,
-    phone: createUserDto.phone,
-    password: hashedPaswword,
-  });
-  
-  return user 
-  
-} catch (error) {
-  throw new HttpException("user with this phone registed before.please sign in", HttpStatus.BAD_REQUEST)
-}
-  }
 
+  ///SIGN UP
+  async signup({ phone, password, firstName, lastName }: SignupParams) {
 
+    const userExist = await this.userModel.findOne({ where: { phone } })
+    if (userExist) {
 
-//////SIGN IN
-  async validateUserByPhone(phone, password) {
-
-    const user = await this.userModel.findOne({ where: { phone: phone } });
-    if (user) {
-      const validPass = await bcrypt.compare(password, user.password);
-      if (validPass) {
-        const { password, ...result } = user['dataValues']
-        return result;
-
-      } else {
-        throw new HttpException("your password is wrong", HttpStatus.BAD_REQUEST)
-      }
-
-    } else {
-      throw new HttpException("user dont exist!please sign up", HttpStatus.BAD_REQUEST)
+      throw new HttpException("user with this phone registed before.please sign in", HttpStatus.CONFLICT)
     }
+    const salt = await bcrypt.genSalt()
+    const hashedPaswword = await bcrypt.hash(password, salt)
+    const user = await this.userModel.create({
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      password: hashedPaswword,
+    })
+    const generatedToken = await this.generateToken(phone, firstName, lastName)
+
+    return { generatedToken }
   }
 
+
+
+  ///SIGN IN
+  async signin({ phone, password }: SignInParams) {
+    const user = await this.userModel.findOne({ where: { phone } })
+    if (!user) {
+      throw new HttpException("This user dont exist! Signup Please", HttpStatus.BAD_REQUEST)
+    }
+
+    const validPass = await bcrypt.compare(password, user.password);
+
+    if (validPass) {
+      const { password, ...result } = user['dataValues']
+      return this.generateToken(phone, user.firstName, user.lastName);
+    } else throw new HttpException("Your password is wrong", HttpStatus.BAD_REQUEST)
+
+
+  }
 
   async findAll(): Promise<User[]> {
     return this.userModel.findAll();
@@ -68,4 +80,15 @@ try {
 
 
 
+
+  private async generateToken(phone: string, firstName: string, lastName: string) {
+    const token = await jwt.sign({
+      firstName,
+      lastName,
+      phone
+    }, "sjsal;jljglashoihoiwjerf9w87e9rjulkojh3425789", { expiresIn: 36000 })
+
+    return token
+
+  }
 }

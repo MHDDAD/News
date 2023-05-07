@@ -29,7 +29,7 @@
 
 
 import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { SigninDto, SignupDto } from '../users/dto/auth.dto';
 import { User } from '../users/models/user.model';
 import { AuthService } from './auth.service';
 
@@ -39,28 +39,24 @@ export class AuthController {
 
 
 
-  @Post('login')
-  validateUserByPhone(@Body() body: Record<string, any>) {
-
-    const user = this.authService.validateUserByPhone(body.phone, body.password)
-    return user
+  @Post('signup')
+  @UsePipes(ValidationPipe)
+  async signup(@Body() body: SignupDto): Promise<any> {
+    return await this.authService.signup(body);
 
   }
 
 
-  @Post('signup')
-  @UsePipes(ValidationPipe)
-  async create(@Body() createUserDto: CreateUserDto): Promise<any> {
-    const user = await this.authService.create(createUserDto);
-    if (user) {
-      return user.firstName + ' ' + user.lastName + '  registered'
-    } else {
-    }
+  @Post('signin')
+  signin(@Body() body: SigninDto): Promise<any> {
+
+   return this.authService.signin(body)
+  
+
   }
 
   @Get()
   findAll(): Promise<User[]> {
-    const user = this.authService.findAll();
     return this.authService.findAll();
   }
 

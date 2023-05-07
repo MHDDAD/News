@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength, IsInt } from "class-validator";
 import { RoleType } from "../constants/users.constants";
 
-export class CreateUserDto {
+export class SignupDto {
 
   @IsString()
   @IsNotEmpty()
@@ -28,4 +28,19 @@ export class CreateUserDto {
   role: RoleType    // use for create post just with admin role
 }
 
+
+export class SigninDto{
+
+  
+  @IsNotEmpty()
+  phone: string;
+  
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  @MaxLength(12)
+  password: string;
+
+}
 

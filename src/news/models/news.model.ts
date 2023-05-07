@@ -1,9 +1,12 @@
 
-import { AutoIncrement, BelongsTo, Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, Model, PrimaryKey, Table, } from 'sequelize-typescript';
 
 @Table
 export class News extends Model {
 
+  // @AutoIncrement
+  // @Column
+  // id: number;
 
   @Column
   title: string;
@@ -25,4 +28,7 @@ export class News extends Model {
 
   @Column
   source: string
+
+  // @Column
+  // created_at: 
 }

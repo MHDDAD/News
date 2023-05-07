@@ -8,7 +8,7 @@ import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { User } from './users/models/user.model';
-import { News } from './news/news.model';
+import { News } from './news/models/news.model';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 
@@ -33,6 +33,6 @@ import { AuthController } from './auth/auth.controller';
     UsersController],
   providers: [
     AppService,
-     UsersService],
+    UsersService],
 })
 export class AppModule { }
