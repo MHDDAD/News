@@ -55,9 +55,9 @@ export class AuthController {
 
   }
 
-  @Get()
-  findAll(): Promise<User[]> {
-    return this.authService.findAll();
+  @Get('find')
+  findOne(@Body()id: number): Promise<any> {
+    return this.authService.findOne(id);
   }
 
   // @Get(':id')

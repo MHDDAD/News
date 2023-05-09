@@ -72,8 +72,9 @@ export class AuthService {
 
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
+  async findOne(id): Promise<any> {
+    console.log(id.id);
+    return this.userModel.findOne({ where: { id:id.id } });
   }
 
 
